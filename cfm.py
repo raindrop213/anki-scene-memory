@@ -1,6 +1,6 @@
 import os
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox
 
 def split_filename(filename, pre_text, post_text):
     try:
@@ -68,6 +68,18 @@ tk.Label(root, text="后").grid(row=2, column=4)
 tk.Entry(root, textvariable=subtitle_post).grid(row=2, column=5)
 
 tk.Button(root, text="执行", command=lambda: rename_files(folder_path.get(), video_ext.get(), video_pre.get(), video_post.get(), subtitle_ext.get(), subtitle_pre.get(), subtitle_post.get())).grid(row=4, column=0, sticky='EW')
+
+# 视频格式下拉列表
+video_formats = ['.mkv', '.mp4', '.avi', '.mov', '.wmv']  # 添加更多格式
+video_ext_combobox = ttk.Combobox(root, textvariable=video_ext, values=video_formats)
+video_ext_combobox.grid(row=1, column=1)
+video_ext_combobox.set('.mkv')  # 设置默认值
+
+# 字幕格式下拉列表
+subtitle_formats = ['.ass', '.srt', '.sub']  # 添加更多格式
+subtitle_ext_combobox = ttk.Combobox(root, textvariable=subtitle_ext, values=subtitle_formats)
+subtitle_ext_combobox.grid(row=2, column=1)
+subtitle_ext_combobox.set('.ass')  # 设置默认值
 
 # 运行GUI
 root.mainloop()
