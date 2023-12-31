@@ -1,0 +1,43 @@
+<div class='frontbg'>
+    <div style='display: none;'>
+        <div id='_audio-exp'>{{audio-exp}}</div>
+        <div id='_audio-text'>{{audio-text}}</div>
+    </div>
+
+    <div id='expression' style='font-family: BIZ UDGothic; font-size: 48px; cursor: pointer;'>{{expression}}</div>
+
+    <div id='audio' onclick='playAudio("_audio-text")' class='icon_audio'></div>
+
+    <br>
+
+    <div id='sentence' style='font-family: BIZ UDGothic; font-size: 24px;'>{{sentence}}</div>
+</div>
+
+<div class='backbg'>
+    <div>{{glossary-brief}}</div>
+    {{image}}
+</div>
+
+<script>
+    function playAudio(audioId) {
+        var audioDiv = document.getElementById(audioId);
+        var audio = audioDiv.getElementsByTagName('*');
+        if (audio.length > 0) {
+            audio[0].click();
+        }
+    }
+
+    function highlightExpression() {
+        var expression = "{{expression}}";
+        var sentenceDiv = document.getElementById('sentence');
+        var sentence = sentenceDiv.innerHTML;
+        var highlightedSentence = sentence.replace(expression, "<span class='highlight'>" + expression + "</span>");
+        sentenceDiv.innerHTML = highlightedSentence;
+    }
+
+    highlightExpression();
+
+    document.getElementById('expression').addEventListener('click', function() {
+        playAudio('_audio-exp');
+    });
+</script>
