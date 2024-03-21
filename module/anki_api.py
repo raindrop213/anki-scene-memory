@@ -3,17 +3,30 @@ import json
 import urllib.request
 import base64
 import time
+import configparser
 
 class AnkiConnector:
-    def __init__(self, anki_api_url='http://127.0.0.1:8765'):
-        self.anki_api_url = anki_api_url
+    def __init__(self, config=None):
+        if config is None:
+            self.config = configparser.ConfigParser()
+            self.config.read('../config.ini')  # 从文件加载配置
+        else:
+            self.config = config  # 使用传递的配置
+
+        self.anki_api_url = self.config.get('anki', 'anki_api_url')
+        self.anki_api_url = self.config.get('anki', 'anki_api_url')
+
+        self.voice_exp = self.config.get('vits', 'voice_exp')
+        self.voice_sen = self.config.get('vits', 'voice_sen')
+        self.language = self.config.get('vits', 'language')
+        self.length = self.config.get('vits', 'length')
 
     def encode_to_base64(self, content):
         encoded_content = base64.b64encode(content)
         return encoded_content.decode('utf-8')
 
-    def get_audio_file(self, text, path, language="ja", voice="342", format="mp3", length="1.1"):
-        params = urllib.parse.urlencode({'text': text, 'id': voice, 'lang': language, 'format': format, 'length': length})
+    def get_audio_file(self, text, path, voice):
+        params = urllib.parse.urlencode({'text': text, 'id': voice, 'lang': self.language, 'format': 'mp3', 'length': self.length})
         url = f"http://127.0.0.1:23456/voice/vits?{params}"
         request = urllib.request.Request(url)
         with urllib.request.urlopen(request) as response:
@@ -38,10 +51,10 @@ class AnkiConnector:
     def create_note(self, deckName, modelName, expression, sentence, meaning, image_path, exp_path, sen_path):
 
         # 生成音频
-        self.get_audio_file(expression, exp_path, voice="324")# 324日语胡桃（高桥李依）
-        self.get_audio_file(sentence, sen_path, voice="342") # 342日语雷电将军（泽城美雪）
+        self.get_audio_file(expression, exp_path, voice=self.voice_exp)
+        self.get_audio_file(sentence, sen_path, voice=self.voice_sen)
 
-        if not all(os.path.exists(path) for path in [expression, sentence, meaning, image_path, exp_path, sen_path]):
+        if not all(os.path.exists(path) for path in [image_path, exp_path, sen_path]):
             raise FileNotFoundError("One or more media files do not exist.")
         
         timestamp = str(int(time.time() * 1000))  # 转换时间戳到毫秒
@@ -49,7 +62,6 @@ class AnkiConnector:
         image_file_name = f'_{timestamp}_{image_path.split("/")[-1]}'
         audio_exp_file_name = f'_{timestamp}_{exp_path.split("/")[-1]}'
         audio_sen_file_name = f'_{timestamp}_{sen_path.split("/")[-1]}'
-        print(image_file_name, audio_exp_file_name, audio_sen_file_name)
 
         note_id = self.invoke('addNote', note={
             "deckName": deckName,
@@ -82,7 +94,7 @@ if __name__ == '__main__':
                                     expression="連邦",
                                     sentence="まさか連邦の白い雌豹マリアナ・ルチアーノ様にお会い出来るとは",
                                     meaning="解释",
-                                    image_path='cache/picture.png',
+                                    image_path='cache/picture.jpg',
                                     exp_path='cache/audio-exp.mp3',
                                     sen_path='cache/audio-sen.mp3')
 
