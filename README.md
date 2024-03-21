@@ -1,6 +1,4 @@
-通过 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 快速查词制卡
-
-Anki模版：[Anki模版](anki_template/manga_test.apkg)
+通过 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 快速查词制卡（ [Anki模版](anki_template/manga_test.apkg) ）
 
 语音 & OCR：[vits-simple-api](https://github.com/Artrajz/vits-simple-api) & [manga-ocr](https://github.com/kha-white/manga-ocr)
 
