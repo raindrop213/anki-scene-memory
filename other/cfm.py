@@ -67,7 +67,7 @@ tk.Entry(root, textvariable=subtitle_pre).grid(row=2, column=3)
 tk.Label(root, text="后").grid(row=2, column=4)
 tk.Entry(root, textvariable=subtitle_post).grid(row=2, column=5)
 
-tk.Button(root, text="执行", command=lambda: rename_files(folder_path.get(), video_ext.get(), video_pre.get(), video_post.get(), subtitle_ext.get(), subtitle_pre.get(), subtitle_post.get())).grid(row=4, column=0, sticky='EW')
+tk.Button(root, text="执行", command=lambda: rename_files(folder_path.get(), video_ext.get(), video_pre.get(), video_post.get(), subtitle_ext.get(), subtitle_pre.get(), subtitle_post.get())).grid(row=4, column=1, columnspan=4,sticky='EW')
 
 # 视频格式下拉列表
 video_formats = ['.mkv', '.mp4', '.avi', '.mov', '.wmv']  # 添加更多格式
