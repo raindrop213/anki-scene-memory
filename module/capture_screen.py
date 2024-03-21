@@ -95,10 +95,30 @@ class CaptureScreen(QWidget):
         return pickRect
 
     def saveImage(self):
-        imagePath = 'cache/picture.png'
-        self.captureImage.save(imagePath, 'PNG', quality=85)   # 保存图片
+        max_size = 800
+        imagePath = 'cache/picture.jpg'
+        
+        # 获取图片原始宽度和高度
+        original_width = self.captureImage.width()
+        original_height = self.captureImage.height()
+
+        # 判断是否需要缩放
+        if original_width > max_size or original_height > max_size:
+            scale_ratio = min(max_size / original_width, max_size / original_height)
+            new_width = int(original_width * scale_ratio)
+            new_height = int(original_height * scale_ratio)
+            
+            # 等比缩放图片
+            scaled_image = self.captureImage.scaled(new_width, new_height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        else:
+            scaled_image = self.captureImage
+
+        # 保存图片
+        scaled_image.save(imagePath, 'JPG', quality=70)
+        
         if self.callback:
             self.callback(imagePath)  # 调用回调函数，传递图片路径
+
 
 if __name__ == "__main__":
     keyboard.wait(hotkey='f10')

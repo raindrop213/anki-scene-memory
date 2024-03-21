@@ -1,10 +1,11 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextBrowser
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextBrowser, QTextEdit, QPlainTextEdit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
 from module.capture_screen import CaptureScreen
 from module.moji import moji
 from module.youdao import youdao
+from module.weblio import weblio
 from module.anki_api import AnkiConnector
 
 class MainApp(QWidget):
@@ -34,14 +35,17 @@ class MainApp(QWidget):
 
         self.expressionEdit = QLineEdit(self)
         self.expressionEdit.textChanged.connect(self.on_text_changed)
+        self.expressionEdit.setPlaceholderText('单词')
         layout.addWidget(self.expressionEdit)
 
-        self.sentenceEdit = QLineEdit(self)
-        self.sentenceEdit.setPlaceholderText('输入句子')
+        # 使用QPlainTextEdit代替QTextEdit以支持多行输入和自动换行，同时保持纯文本格式
+        self.sentenceEdit = QPlainTextEdit(self)
+        self.sentenceEdit.setPlaceholderText('句子')
+        self.sentenceEdit.setMaximumHeight(50)  # 设置一个初始最大高度
         layout.addWidget(self.sentenceEdit)
 
-        # 使用QTextBrowser来显示HTML内容
-        self.definitionEdit = QTextBrowser(self)
+        # 使用QTextEdit来代替QTextBrowser以支持文本编辑
+        self.definitionEdit = QTextEdit(self)  # 修改这里
         self.definitionEdit.setMaximumHeight(150)
         self.definitionEdit.setPlaceholderText('Moji & Youdao')
         layout.addWidget(self.definitionEdit)
@@ -72,7 +76,8 @@ class MainApp(QWidget):
     def on_text_changed(self):
         word = self.expressionEdit.text()
         if word:
-            definition = moji(word) + '<hr class="rd213">' + youdao(word)
+            definition = '<hr class="rd213">'.join([moji(word), youdao(word), weblio(word)])
+            print(definition)
             self.definitionEdit.setHtml(definition)  # 使用setHtml而不是setText
 
     def on_send_to_anki(self):
@@ -80,7 +85,7 @@ class MainApp(QWidget):
         definition = self.definitionEdit.toHtml()  # 获取HTML内容
         deckName = self.deckNameCombo.currentText()
         modelName = self.modelNameCombo.currentText()
-        sentence = self.sentenceEdit.text()
+        sentence = self.sentenceEdit.toPlainText()
         if word and definition and deckName and modelName:
             try:
                 connector = AnkiConnector()
@@ -89,7 +94,7 @@ class MainApp(QWidget):
                                       expression=word,
                                       sentence=sentence,
                                       meaning=definition,
-                                      image_path='cache/picture.png',
+                                      image_path='cache/picture.jpg',
                                       exp_path='cache/audio-exp.mp3',
                                       sen_path='cache/audio-sen.mp3')
             except Exception as e:

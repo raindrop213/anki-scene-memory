@@ -41,7 +41,7 @@ class AnkiConnector:
         self.get_audio_file(expression, exp_path, voice="324")# 324日语胡桃（高桥李依）
         self.get_audio_file(sentence, sen_path, voice="342") # 342日语雷电将军（泽城美雪）
 
-        if not all(os.path.exists(path) for path in [image_path, exp_path, sen_path]):
+        if not all(os.path.exists(path) for path in [expression, sentence, meaning, image_path, exp_path, sen_path]):
             raise FileNotFoundError("One or more media files do not exist.")
         
         timestamp = str(int(time.time() * 1000))  # 转换时间戳到毫秒
