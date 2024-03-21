@@ -50,12 +50,15 @@ class AnkiConnector:
 
     def create_note(self, deckName, modelName, expression, sentence, meaning, image_path, exp_path, sen_path):
 
-        # 生成音频
-        self.get_audio_file(expression, exp_path, voice=self.voice_exp)
-        self.get_audio_file(sentence, sen_path, voice=self.voice_sen)
-
+        # 生成音频/图片
+        if not self.get_audio_file(expression, exp_path, voice=self.voice_exp):
+            raise Exception("Failed to generate: audio-expression")
+        
+        if not self.get_audio_file(sentence, sen_path, voice=self.voice_sen):
+            raise Exception("Failed to generate: audio-sentence")
+        
         if not all(os.path.exists(path) for path in [image_path, exp_path, sen_path]):
-            raise FileNotFoundError("One or more media files do not exist.")
+            raise Exception("Failed to generate: image")
         
         timestamp = str(int(time.time() * 1000))  # 转换时间戳到毫秒
 
@@ -89,7 +92,7 @@ class AnkiConnector:
 
 if __name__ == '__main__':
     connector = AnkiConnector()
-    note_id = connector.create_note(deckName="HT",
+    note_id = connector.create_note(deckName="manga_test",
                                     modelName="manga",
                                     expression="連邦",
                                     sentence="まさか連邦の白い雌豹マリアナ・ルチアーノ様にお会い出来るとは",
