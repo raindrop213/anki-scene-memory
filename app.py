@@ -1,12 +1,13 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextEdit, QPlainTextEdit, QMessageBox
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 from module.capture_screen import CaptureScreen
 from module.moji import moji
 from module.youdao import youdao
 from module.weblio import weblio
 from module.anki_api import AnkiConnector
+import webbrowser
 import configparser
 
 class MainApp(QWidget):
@@ -15,6 +16,7 @@ class MainApp(QWidget):
         self.config = configparser.ConfigParser()
         self.config.read('config.ini') # 加载配置
         self.initUI()
+
 
     def initUI(self):
         self.setWindowTitle('Anki卡片制作')
@@ -39,7 +41,14 @@ class MainApp(QWidget):
                 self.modelNameCombo.addItem(model.strip())
         selectionLayout.addWidget(self.modelNameCombo)
 
-        layout.addLayout(selectionLayout)
+        # 创建带有 GitHub 图标的按钮
+        self.githubButton = QPushButton(self)
+        self.githubButton.setIcon(QIcon('./docs/icon-github.svg'))
+        self.githubButton.setFixedWidth(30)
+        self.githubButton.clicked.connect(self.openGithub)
+        selectionLayout.addWidget(self.githubButton)
+
+        layout.addLayout(selectionLayout)  # 将选择布局添加到主布局中
 
         # 添加切换按钮以选择翻译来源
         sourceSelectionLayout = QHBoxLayout()
@@ -104,6 +113,25 @@ class MainApp(QWidget):
 
         self.setLayout(layout)
 
+        self.statusLabel = QLabel("- ready -")
+        self.statusLabel.setAlignment(Qt.AlignCenter)
+        self.statusLabel.setWordWrap(True)  # 允许文本换行
+        self.statusLabel.setMaximumHeight(20)
+        self.statusLabel.setMaximumWidth(self.width() - 20)  # 设置最大宽度为窗口宽度减去一定的边距
+        layout.addWidget(self.statusLabel)  # 将状态栏标签添加到布局中
+    
+    def updateStatusMessage(self, message):
+        """更新状态栏消息的方法。"""
+        self.statusLabel.setText(message)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.statusLabel:
+            self.statusLabel.setMaximumWidth(self.width() - 20)
+
+    def openGithub(self):
+        webbrowser.open('https://github.com/raindrop213/anki-scene-memory')
+
     def pasteText(self):
         clipboard = QApplication.clipboard()
         text = clipboard.text()
@@ -152,24 +180,23 @@ class MainApp(QWidget):
         deckName = self.deckNameCombo.currentText()
         modelName = self.modelNameCombo.currentText()
         sentence = self.sentenceEdit.toPlainText()
-        if word and definition and deckName and modelName and sentence:
-            try:
+        
+        try:
+            if word and definition and deckName and modelName and sentence:
                 connector = AnkiConnector(config=self.config)
-                connector.create_note(deckName=deckName,
-                                      modelName=modelName,
-                                      expression=word,
-                                      sentence=sentence,
-                                      meaning=definition,
-                                      image_path='cache/picture.jpg',
-                                      exp_path='cache/audio-exp.mp3',
-                                      sen_path='cache/audio-sen.mp3')
-            except Exception as e:
-                error_dialog = QMessageBox()
-                error_dialog.setIcon(QMessageBox.Critical)
-                error_dialog.setText("发生错误")
-                error_dialog.setInformativeText(str(e))
-                error_dialog.setWindowTitle("错误")
-                error_dialog.exec_()
+                note_id = connector.create_note(deckName=deckName,
+                                                modelName=modelName,
+                                                expression=word,
+                                                sentence=sentence,
+                                                meaning=definition,
+                                                image_path='cache/picture.jpg',
+                                                exp_path='cache/audio-exp.mp3',
+                                                sen_path='cache/audio-sen.mp3')
+                self.updateStatusMessage(f'Created note with ID:{note_id}')
+            else:
+                self.updateStatusMessage(f'One or more information are empty.')
+        except Exception as e:
+            self.updateStatusMessage(f"失败: {str(e)}")
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
