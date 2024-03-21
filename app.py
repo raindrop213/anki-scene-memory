@@ -20,6 +20,7 @@ class MainApp(QWidget):
 
     def initUI(self):
         self.setWindowTitle('Anki卡片制作')
+        self.setWindowIcon(QIcon('docs/icon.png'))  # 设置窗口图标
         self.setGeometry(100, 100, 400, 600)
 
         layout = QVBoxLayout()
