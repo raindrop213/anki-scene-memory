@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextEdit, QPlainTextEdit
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon
 from module.capture_screen import CaptureScreen
 from module.moji import moji
@@ -11,10 +11,21 @@ from module.anki_api import AnkiConnector
 import webbrowser
 import yaml
 
+
+class MyPlainTextEdit(QPlainTextEdit):
+    textSelected = pyqtSignal(str)  # 定义一个信号，用来发送所选文本
+
+    def mouseReleaseEvent(self, event):
+        super().mouseReleaseEvent(event)
+        selectedText = self.textCursor().selectedText()  # 获取所选文本
+        if selectedText:  # 如果有选中的文本，发出信号
+            self.textSelected.emit(selectedText)
+
 class MainApp(QWidget):
     def __init__(self):
         super().__init__()
         self.config = self.load_config('config.yaml')  # 加载配置文件
+        self.cixingColors = self.config['mecab']['cixingcolor']  # 加载词性颜色配置
         self.initUI()
 
     def load_config(self, filepath):
@@ -81,9 +92,10 @@ class MainApp(QWidget):
 
         # 句子编辑框和复制按钮的布局
         sentenceLayout = QHBoxLayout()
-        self.sentenceEdit = QPlainTextEdit(self)
+        self.sentenceEdit = MyPlainTextEdit(self)
         self.sentenceEdit.setPlaceholderText('句子')
         self.sentenceEdit.setMaximumHeight(50)
+        self.sentenceEdit.textSelected.connect(self.on_text_selected)  # 连接信号到槽函数
         sentenceLayout.addWidget(self.sentenceEdit)
 
         # 创建复制到句子框的按钮
@@ -122,7 +134,11 @@ class MainApp(QWidget):
         self.statusLabel.setMaximumHeight(20)
         self.statusLabel.setMaximumWidth(self.width() - 20)  # 设置最大宽度为窗口宽度减去一定的边距
         layout.addWidget(self.statusLabel)  # 将状态栏标签添加到布局中
-    
+
+    def on_text_selected(self, text):
+        # 将选中的文本设置到单词编辑框中
+        self.expressionEdit.setText(text)
+
     def updateStatusMessage(self, message):
         """更新状态栏消息的方法。"""
         self.statusLabel.setText(message)
