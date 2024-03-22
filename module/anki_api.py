@@ -3,23 +3,23 @@ import json
 import urllib.request
 import base64
 import time
-import configparser
 
 class AnkiConnector:
-    def __init__(self, config=None):
-        if config is None:
-            self.config = configparser.ConfigParser()
-            self.config.read('../config.ini')  # 从文件加载配置
+    def __init__(self, config_path='../config.yaml'):
+        # 加载配置
+        if config_path:
+            import yaml
+            with open(config_path, 'r', encoding='utf-8') as file:
+                self.config = yaml.safe_load(file)
         else:
-            self.config = config  # 使用传递的配置
+            self.config = {}
 
-        self.anki_api_url = self.config.get('anki', 'anki_api_url')
-        self.anki_api_url = self.config.get('anki', 'anki_api_url')
-
-        self.voice_exp = self.config.get('vits', 'voice_exp')
-        self.voice_sen = self.config.get('vits', 'voice_sen')
-        self.language = self.config.get('vits', 'language')
-        self.length = self.config.get('vits', 'length')
+        # 从YAML配置中提取值
+        self.anki_api_url = self.config['anki']['anki_api_url']
+        self.voice_exp = int(self.config['vits']['voice_exp'])
+        self.voice_sen = int(self.config['vits']['voice_sen'])
+        self.language = self.config['vits']['language']
+        self.length = float(self.config['vits']['length'])
 
     def encode_to_base64(self, content):
         encoded_content = base64.b64encode(content)

@@ -1,3 +1,0 @@
-requests
-pyqt5
-keyboard

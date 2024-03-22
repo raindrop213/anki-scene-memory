@@ -1,22 +1,26 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextEdit, QPlainTextEdit, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextEdit, QPlainTextEdit
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap, QIcon
 from module.capture_screen import CaptureScreen
 from module.moji import moji
 from module.youdao import youdao
 from module.weblio import weblio
+from module.mecab import MeCabConverter
 from module.anki_api import AnkiConnector
 import webbrowser
-import configparser
+import yaml
 
 class MainApp(QWidget):
     def __init__(self):
         super().__init__()
-        self.config = configparser.ConfigParser()
-        self.config.read('config.ini') # 加载配置
+        self.config = self.load_config('config.yaml')  # 加载配置文件
         self.initUI()
 
+    def load_config(self, filepath):
+        """加载YAML配置文件"""
+        with open(filepath, 'r', encoding='utf-8') as file:
+            return yaml.safe_load(file)
 
     def initUI(self):
         self.setWindowTitle('Anki卡片制作')
@@ -29,17 +33,15 @@ class MainApp(QWidget):
         selectionLayout = QHBoxLayout()
 
         self.deckNameCombo = QComboBox(self)
-        decks = self.config.get('anki', 'decks').split(',')
+        decks = self.config['anki']['decks']
         for deck in decks:
-            if deck:
-                self.deckNameCombo.addItem(deck.strip())
+            self.deckNameCombo.addItem(deck)
         selectionLayout.addWidget(self.deckNameCombo)
 
         self.modelNameCombo = QComboBox(self)
-        models = self.config.get('anki', 'models').split(',')
+        models = [self.config['anki']['models']]  # 假设models只有一个值
         for model in models:
-            if model:
-                self.modelNameCombo.addItem(model.strip())
+            self.modelNameCombo.addItem(model)
         selectionLayout.addWidget(self.modelNameCombo)
 
         # 创建带有 GitHub 图标的按钮

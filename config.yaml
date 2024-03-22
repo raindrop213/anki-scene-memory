@@ -1,0 +1,33 @@
+anki:
+  decks:
+    - manga_test
+    - manga_1
+  models: manga
+  anki_api_url: http://127.0.0.1:8765
+
+vits:
+  language: ja
+  voice_exp: 324
+  voice_sen: 342
+  length: 1.1
+
+mecab:
+  cixingcolor:
+    形容詞: "#ffe1f3"
+    形状詞: "#f1c9e1"
+    副詞: "#d096ea"
+    名詞: "#fef47b"
+    代名詞: "azure"
+    動詞: "#b9e986"
+    助詞: "#94d7dd"
+    助動詞: "black"
+    感動詞: "blanchedalmond"
+    接頭辞: "blue"
+    接尾辞: "blueviolet"
+    接続詞: "brown"
+    指示詞: "burlywood"
+    連体詞: "cadetblue"
+    判定詞: "chartreuse"
+    補助記号: "chocolate"
+    記号: "coral"
+    空白: "white"

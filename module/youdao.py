@@ -58,6 +58,6 @@ def youdao(word):
     
 
 if __name__=='__main__':
-    y = youdao('濡れ場')
+    y = youdao('武田')
     print(y)
 

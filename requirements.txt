@@ -1,0 +1,5 @@
+requests
+pyqt5
+keyboard
+mecab-python3
+PyYAML
