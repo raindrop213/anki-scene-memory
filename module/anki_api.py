@@ -5,14 +5,14 @@ import base64
 import time
 
 class AnkiConnector:
-    def __init__(self, config_path='../config.yaml'):
+    def __init__(self, config=None):
         # 加载配置
-        if config_path:
+        if config is None:
             import yaml
-            with open(config_path, 'r', encoding='utf-8') as file:
+            with open('e:/mypj/anki-scene-memory/config.yaml', 'r', encoding='utf-8') as file:
                 self.config = yaml.safe_load(file)
         else:
-            self.config = {}
+            self.config = config # 使用传递的配置
 
         # 从YAML配置中提取值
         self.anki_api_url = self.config['anki']['anki_api_url']
@@ -90,6 +90,20 @@ class AnkiConnector:
         print('Created note with ID:', note_id)
         return note_id
 
+    def delete_note(self, note_id):
+        """
+        删除指定ID的卡片
+        :param note_id: 要删除的卡片的ID
+        :return: 删除操作的结果
+        """
+        try:
+            result = self.invoke('deleteNotes', notes=[note_id])
+            print(f'Deleted note with ID: {note_id}')
+            return result
+        except Exception as e:
+            print(f'Failed to delete note with ID {note_id}: {e}')
+            return None
+
 if __name__ == '__main__':
     connector = AnkiConnector()
     note_id = connector.create_note(deckName="manga_test",
@@ -100,4 +114,4 @@ if __name__ == '__main__':
                                     image_path='cache/picture.jpg',
                                     exp_path='cache/audio-exp.mp3',
                                     sen_path='cache/audio-sen.mp3')
-
+    connector.delete_note(note_id)

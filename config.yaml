@@ -1,7 +1,8 @@
 anki:
   decks:
     - manga_test
-    - manga_1
+    - HT
+    - manga
   models: manga
   anki_api_url: http://127.0.0.1:8765
 
