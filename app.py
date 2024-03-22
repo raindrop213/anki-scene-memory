@@ -27,6 +27,7 @@ class MainApp(QWidget):
         self.config = self.load_config('config.yaml')  # 加载配置文件
         self.cixingColors = self.config['mecab']['cixingcolor']  # 加载词性颜色配置
         self.initUI()
+        self.applyInitialTopMostSetting()  # 添加这行来应用初始的置顶设置
 
     def load_config(self, filepath):
         """加载YAML配置文件"""
@@ -122,11 +123,21 @@ class MainApp(QWidget):
         self.imageLabel.setText("- 截图选定范围后回车或者双击 -")
         layout.addWidget(self.imageLabel)
 
+        # 发送和置顶按钮的水平布局
+        sendAndPinLayout = QHBoxLayout()
+
         self.sendButton = QPushButton('发送到 Anki', self)
         self.sendButton.clicked.connect(self.on_send_to_anki)
-        layout.addWidget(self.sendButton)
+        sendAndPinLayout.addWidget(self.sendButton)
 
-        self.setLayout(layout)
+        self.pinButton = QPushButton('🔝', self)  # 假设你有一个置顶图标pin-icon.png
+        self.pinButton.setCheckable(True)
+        self.pinButton.setChecked(True)  # 默认置顶
+        self.pinButton.setFixedWidth(25)
+        self.pinButton.clicked.connect(self.toggleAlwaysOnTop)
+        sendAndPinLayout.addWidget(self.pinButton)
+
+        layout.addLayout(sendAndPinLayout)  # 添加新的水平布局到主布局
 
         self.statusLabel = QLabel("- ready -")
         self.statusLabel.setAlignment(Qt.AlignCenter)
@@ -134,6 +145,23 @@ class MainApp(QWidget):
         self.statusLabel.setMaximumHeight(20)
         self.statusLabel.setMaximumWidth(self.width() - 20)  # 设置最大宽度为窗口宽度减去一定的边距
         layout.addWidget(self.statusLabel)  # 将状态栏标签添加到布局中
+
+        self.setLayout(layout)
+
+    def applyInitialTopMostSetting(self):
+        """设置窗口的初始置顶状态。"""
+        if self.pinButton.isChecked():
+            self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        else:
+            self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
+        self.show()  # 需要重新显示窗口以应用窗口标志
+
+    def toggleAlwaysOnTop(self):
+        if self.pinButton.isChecked():
+            self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
+        else:
+            self.setWindowFlags(self.windowFlags() & ~Qt.WindowStaysOnTopHint)
+        self.show()  # 需要重新显示窗口以应用新的窗口标志
 
     def on_text_selected(self, text):
         # 将选中的文本设置到单词编辑框中
