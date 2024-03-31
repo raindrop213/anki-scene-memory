@@ -1,15 +1,13 @@
 anki:
   decks:
-    - novel
     - manga
     - novel
     - HT
     - manga_test
   models: 
-    - novel
     - manga
     - novel
-  printscreen: false
+  printscreen: True
   anki_api_url: http://127.0.0.1:8765
   vits_api_url: http://127.0.0.1:23456
 
