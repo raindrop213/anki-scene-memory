@@ -166,7 +166,7 @@ class MainApp(QWidget):
 
         self.senButton = QPushButton("VITS", self)
         self.senButton.setCheckable(True)
-        self.senButton.setChecked(True)  # 默认选中
+        self.senButton.setChecked(False)  # 默认选中
         self.senButton.setFixedWidth(50)
         sendAndPinLayout.addWidget(self.senButton)
 
