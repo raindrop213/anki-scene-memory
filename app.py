@@ -27,9 +27,9 @@ class MainApp(QWidget):
     def __init__(self):
         super().__init__()
         self.config = self.load_config('config.yaml')  # 加载配置文件
-        self.cixingColors = self.config['mecab']['cixingcolor']  # 加载词性颜色配置
         self.vits_api = VitsAPI(self.config)
         self.initUI()
+        self.toggleCaptureAreaInit()
         self.toggleAlwaysOnTop()  # 添加这行来应用初始的置顶设置
 
         self.clipButton.stateChanged.connect(self.toggleClipboardMonitoring)
@@ -92,7 +92,7 @@ class MainApp(QWidget):
 
         self.screenButton = QPushButton("截图", self)
         self.screenButton.setCheckable(True)
-        self.screenButton.setChecked(True)  # 默认选中
+        self.screenButton.setChecked(self.config['anki']['printscreen'])
         self.screenButton.setFixedWidth(50)
         self.screenButton.clicked.connect(self.toggleCaptureArea)  # 显示和隐藏下面的截图框和截图键
         sourceSelectionLayout.addWidget(self.screenButton)
@@ -220,6 +220,13 @@ class MainApp(QWidget):
         else:
             self.captureButton.show()
             self.imageLabel.show()
+    def toggleCaptureAreaInit(self):
+        if self.config['anki']['printscreen']:
+            self.captureButton.show()
+            self.imageLabel.show()
+        else:
+            self.captureButton.hide()
+            self.imageLabel.hide()
 
     def on_sentence_changed(self):
         sentence = self.sentenceEdit.toPlainText()
@@ -228,7 +235,7 @@ class MainApp(QWidget):
             results = processor.process_text(sentence)
             annotated_sentence = ""
             for word_info in results:
-                background_color = self.cixingColors.get(word_info['pos'], "white")  # Default to white if POS not found
+                background_color = self.config['mecab']['cixingcolor'].get(word_info['pos'], "white")  # Default to white if POS not found
                 word_html = f"<span style='background-color: {background_color};line-height:2;'>{word_info['word']}</span>"
 
                 if word_info['furigana']:
