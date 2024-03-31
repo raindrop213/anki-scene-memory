@@ -8,11 +8,13 @@ anki:
     - manga
     - novel
   anki_api_url: http://127.0.0.1:8765
+  vits_api_url: http://127.0.0.1:23456
 
 vits:
   language: ja
   voice_exp: 324
   voice_sen: 342
+  voice_gui: 342
   length: 1.1
 
 mecab:

@@ -9,6 +9,7 @@ from module.youdao import youdao
 from module.weblio import weblio
 from module.mecab import MeCabConverter
 from module.anki_api import AnkiConnector
+from module.vits_api import VitsAPI
 import webbrowser
 import yaml
 
@@ -27,8 +28,12 @@ class MainApp(QWidget):
         super().__init__()
         self.config = self.load_config('config.yaml')  # 加载配置文件
         self.cixingColors = self.config['mecab']['cixingcolor']  # 加载词性颜色配置
+        self.vits_api = VitsAPI(self.config)
         self.initUI()
         self.toggleAlwaysOnTop()  # 添加这行来应用初始的置顶设置
+
+        self.clipButton.stateChanged.connect(self.toggleClipboardMonitoring)
+        self.toggleClipboardMonitoring()  # 初始化剪切板监控状态
 
     def load_config(self, filepath):
         """加载YAML配置文件"""
@@ -94,10 +99,20 @@ class MainApp(QWidget):
 
         layout.addLayout(sourceSelectionLayout)
 
+        # 单词框和朗读单词按钮
+        expressionLayout = QHBoxLayout()
         self.expressionEdit = QLineEdit(self)
         self.expressionEdit.textChanged.connect(self.on_text_changed)
         self.expressionEdit.setPlaceholderText('单词')
-        layout.addWidget(self.expressionEdit)
+        expressionLayout.addWidget(self.expressionEdit)
+
+        self.expressionButton = QPushButton('♪', self)
+        self.expressionButton.setFixedWidth(20)
+        self.expressionButton.clicked.connect(self.playExpressionAudio) # 朗读单词
+        expressionLayout.addWidget(self.expressionButton)
+
+        layout.addLayout(expressionLayout)
+
 
         # 句子编辑框和复制按钮的布局
         sentenceLayout = QHBoxLayout()
@@ -107,7 +122,6 @@ class MainApp(QWidget):
         self.sentenceEdit.textSelected.connect(self.on_text_selected)  # 连接信号到槽函数
         sentenceLayout.addWidget(self.sentenceEdit)
 
-        # 创建复制到句子框的按钮
         self.pasteButton = QPushButton('⧉', self)  # 你可以使用更合适的文本或图标
         self.pasteButton.setFixedWidth(50)  # 设置按钮宽度为20
         self.pasteButton.setMinimumHeight(50)
@@ -133,17 +147,28 @@ class MainApp(QWidget):
         layout.addWidget(self.captureButton)
 
         self.imageLabel = QLabel(self)
+        self.imageLabel.setMinimumHeight(150)
         self.imageLabel.setAlignment(Qt.AlignCenter)
         self.imageLabel.setText("- 截图选定范围后回车或者双击 -")
-        self.imageLabel.setMinimumHeight(150)
         layout.addWidget(self.imageLabel)
 
         # 发送和置顶按钮的水平布局
         sendAndPinLayout = QHBoxLayout()
 
+        self.clipButton = QCheckBox('监控剪切板', self)
+        self.clipButton.setChecked(True)
+        self.clipButton.setFixedWidth(80)
+        sendAndPinLayout.addWidget(self.clipButton)
+
         self.sendButton = QPushButton('发送到 Anki', self)
         self.sendButton.clicked.connect(self.on_send_to_anki)
         sendAndPinLayout.addWidget(self.sendButton)
+
+        self.senButton = QPushButton("VITS", self)
+        self.senButton.setCheckable(True)
+        self.senButton.setChecked(True)  # 默认选中
+        self.senButton.setFixedWidth(50)
+        sendAndPinLayout.addWidget(self.senButton)
 
         self.pinButton = QPushButton('🔝', self)  # 假设你有一个置顶图标pin-icon.png
         self.pinButton.setCheckable(True)
@@ -162,6 +187,30 @@ class MainApp(QWidget):
         layout.addWidget(self.statusLabel)  # 将状态栏标签添加到布局中
 
         self.setLayout(layout)
+
+    def toggleClipboardMonitoring(self):
+        """
+        根据复选框的状态启用或禁用剪切板监控。
+        """
+        if self.clipButton.isChecked():
+            QApplication.clipboard().dataChanged.connect(self.clipboardChanged)
+        else:
+            QApplication.clipboard().dataChanged.disconnect(self.clipboardChanged)
+
+    def clipboardChanged(self):
+        """
+        剪切板内容变化时调用的方法。
+        """
+        clipboard = QApplication.clipboard()
+        mimeData = clipboard.mimeData()
+        if mimeData.hasText():
+            text = mimeData.text()
+            self.pasteText(text)
+            
+    def playExpressionAudio(self):
+        text = self.expressionEdit.text()
+        if text:
+            self.vits_api.play_audio(text)
 
     def toggleCaptureArea(self):
         # This method will toggle the visibility of the capture area and button
@@ -213,10 +262,17 @@ class MainApp(QWidget):
     def openGithub(self):
         webbrowser.open('https://github.com/raindrop213/anki-scene-memory')
 
-    def pasteText(self):
-        clipboard = QApplication.clipboard()
-        text = clipboard.text()
+    def pasteText(self, text=''):
+        """
+        将文本粘贴到句子编辑框，并根据设置播放音频。
+        如果没有提供文本，则尝试从剪切板获取。
+        """
+        if not text:
+            clipboard = QApplication.clipboard()
+            text = clipboard.text()
         self.sentenceEdit.setPlainText(text)
+        if self.senButton.isChecked():
+            self.vits_api.play_audio(text)
 
     def captureScreen(self):
         self.captureWin = CaptureScreen(self.updateImageDisplay)
