@@ -12,9 +12,10 @@ anki:
 
 vits:
   language: ja
-  voice_exp: 324
+  gui_voice: 342
+  gui_length: 1
+  voice_exp: 328
   voice_sen: 342
-  voice_gui: 342
   length: 1.1
 
 mecab:
