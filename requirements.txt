@@ -1,5 +1,6 @@
 requests
 pyqt5
+PyQtWebEngine
 keyboard
 mecab-python3
 PyYAML

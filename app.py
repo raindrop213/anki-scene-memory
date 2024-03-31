@@ -1,5 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextEdit, QPlainTextEdit
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon
 from module.capture_screen import CaptureScreen
@@ -37,7 +38,7 @@ class MainApp(QWidget):
     def initUI(self):
         self.setWindowTitle('Anki卡片制作')
         self.setWindowIcon(QIcon('docs/icon.png'))  # 设置窗口图标
-        self.setGeometry(100, 100, 400, 600)
+        self.setGeometry(100, 100, 400, 700)
 
         layout = QVBoxLayout()
 
@@ -108,8 +109,14 @@ class MainApp(QWidget):
 
         layout.addLayout(sentenceLayout)
 
+        # 注音框
+        self.pronunciationEdit = QWebEngineView(self)
+        self.pronunciationEdit.setMaximumHeight(150)
+        layout.addWidget(self.pronunciationEdit)
+        self.sentenceEdit.textChanged.connect(self.on_sentence_changed)
+
         # 使用QTextEdit来代替QTextBrowser以支持文本编辑
-        self.definitionEdit = QTextEdit(self)  # 修改这里
+        self.definitionEdit = QTextEdit(self)
         self.definitionEdit.setMaximumHeight(150)
         self.definitionEdit.setPlaceholderText('Moji & Youdao')
         layout.addWidget(self.definitionEdit)
@@ -147,6 +154,24 @@ class MainApp(QWidget):
         layout.addWidget(self.statusLabel)  # 将状态栏标签添加到布局中
 
         self.setLayout(layout)
+
+    def on_sentence_changed(self):
+        sentence = self.sentenceEdit.toPlainText()
+        if sentence:
+            processor = MeCabConverter()
+            results = processor.process_text(sentence)
+            annotated_sentence = ""
+            for word_info in results:
+                background_color = self.cixingColors.get(word_info['pos'], "white")  # Default to white if POS not found
+                word_html = f"<span style='background-color: {background_color};line-height:2;'>{word_info['word']}</span>"
+
+                if word_info['furigana']:
+                    annotated_sentence += f"<ruby>{word_html}<rt style='font-size: 0.6em;'>{word_info['furigana']}</rt></ruby>"
+                else:
+                    annotated_sentence += word_html
+
+            self.pronunciationEdit.setHtml(annotated_sentence)
+
 
     def toggleAlwaysOnTop(self):
         if self.pinButton.isChecked():

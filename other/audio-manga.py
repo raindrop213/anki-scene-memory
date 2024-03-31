@@ -62,7 +62,7 @@ def process_deck(deck_name, text_tag, file_mp3, voice, overwrite=False):
     print("所有卡片处理完毕。")
 
 # 使用示例
-process_deck("蓝宝书文法N1", "expression", "audio-exp", 342, overwrite=False)
+process_deck("manga", "expression", "audio-exp", 342, overwrite=False)
 # process_deck("蓝宝书文法N1", "sentence", "audio-sen", 324, overwrite=False)
 
 # 324日语胡桃（高桥李依）；342日语雷电将军（泽城美雪）
