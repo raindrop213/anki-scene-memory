@@ -57,8 +57,6 @@ class AnkiConnector:
         if not self.get_audio_file(sentence, sen_path, voice=self.voice_sen):
             raise Exception("Failed to generate: audio-sentence")
         
-        if not all(os.path.exists(path) for path in [image_path, exp_path, sen_path]):
-            raise Exception("Failed to generate: image")
         
         timestamp = str(int(time.time() * 1000))  # 转换时间戳到毫秒
 

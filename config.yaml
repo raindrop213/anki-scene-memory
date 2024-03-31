@@ -1,9 +1,12 @@
 anki:
   decks:
-    - manga_test
-    - HT
     - manga
-  models: manga
+    - novel
+    - HT
+    - manga_test
+  models: 
+    - manga
+    - novel
   anki_api_url: http://127.0.0.1:8765
 
 vits:

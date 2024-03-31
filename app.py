@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextEdit, QPlainTextEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextEdit, QPlainTextEdit, QCheckBox
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QIcon
@@ -52,7 +52,7 @@ class MainApp(QWidget):
         selectionLayout.addWidget(self.deckNameCombo)
 
         self.modelNameCombo = QComboBox(self)
-        models = [self.config['anki']['models']]  # 假设models只有一个值
+        models = self.config['anki']['models']
         for model in models:
             self.modelNameCombo.addItem(model)
         selectionLayout.addWidget(self.modelNameCombo)
@@ -82,8 +82,15 @@ class MainApp(QWidget):
 
         self.weblioButton = QPushButton("Weblio", self)
         self.weblioButton.setCheckable(True)
-        self.weblioButton.clicked.connect(self.on_source_selection_changed)  # 默认不选中
+        self.weblioButton.clicked.connect(self.on_source_selection_changed)
         sourceSelectionLayout.addWidget(self.weblioButton)
+
+        self.screenButton = QPushButton("截图", self)
+        self.screenButton.setCheckable(True)
+        self.screenButton.setChecked(True)  # 默认选中
+        self.screenButton.setFixedWidth(50)
+        self.screenButton.clicked.connect(self.toggleCaptureArea)  # 显示和隐藏下面的截图框和截图键
+        sourceSelectionLayout.addWidget(self.screenButton)
 
         layout.addLayout(sourceSelectionLayout)
 
@@ -103,7 +110,7 @@ class MainApp(QWidget):
         # 创建复制到句子框的按钮
         self.pasteButton = QPushButton('⧉', self)  # 你可以使用更合适的文本或图标
         self.pasteButton.setFixedWidth(50)  # 设置按钮宽度为20
-        self.pasteButton.setMaximumHeight(50)
+        self.pasteButton.setMinimumHeight(50)
         self.pasteButton.clicked.connect(self.pasteText)
         sentenceLayout.addWidget(self.pasteButton)
 
@@ -111,13 +118,13 @@ class MainApp(QWidget):
 
         # 注音框
         self.pronunciationEdit = QWebEngineView(self)
-        self.pronunciationEdit.setMaximumHeight(150)
+        self.pronunciationEdit.setMinimumHeight(150)
         layout.addWidget(self.pronunciationEdit)
         self.sentenceEdit.textChanged.connect(self.on_sentence_changed)
 
         # 使用QTextEdit来代替QTextBrowser以支持文本编辑
         self.definitionEdit = QTextEdit(self)
-        self.definitionEdit.setMaximumHeight(150)
+        self.definitionEdit.setMinimumHeight(150)
         self.definitionEdit.setPlaceholderText('Moji & Youdao')
         layout.addWidget(self.definitionEdit)
 
@@ -128,6 +135,7 @@ class MainApp(QWidget):
         self.imageLabel = QLabel(self)
         self.imageLabel.setAlignment(Qt.AlignCenter)
         self.imageLabel.setText("- 截图选定范围后回车或者双击 -")
+        self.imageLabel.setMinimumHeight(150)
         layout.addWidget(self.imageLabel)
 
         # 发送和置顶按钮的水平布局
@@ -149,11 +157,20 @@ class MainApp(QWidget):
         self.statusLabel = QLabel("- ready -")
         self.statusLabel.setAlignment(Qt.AlignCenter)
         self.statusLabel.setWordWrap(True)  # 允许文本换行
-        self.statusLabel.setMaximumHeight(20)
+        self.statusLabel.setMinimumHeight(20)
         self.statusLabel.setMaximumWidth(self.width() - 20)  # 设置最大宽度为窗口宽度减去一定的边距
         layout.addWidget(self.statusLabel)  # 将状态栏标签添加到布局中
 
         self.setLayout(layout)
+
+    def toggleCaptureArea(self):
+        # This method will toggle the visibility of the capture area and button
+        if self.captureButton.isVisible():
+            self.captureButton.hide()
+            self.imageLabel.hide()
+        else:
+            self.captureButton.show()
+            self.imageLabel.show()
 
     def on_sentence_changed(self):
         sentence = self.sentenceEdit.toPlainText()
