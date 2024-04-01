@@ -4,4 +4,4 @@ PyQtWebEngine
 keyboard
 mecab-python3
 PyYAML
-playsound
+pygame
