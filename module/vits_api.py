@@ -25,3 +25,11 @@ class VitsAPI:
             # Load this object like a file
             pygame.mixer.music.load(audio_data)
             pygame.mixer.music.play()
+    
+    def play_tips(self, tips_path):
+
+        # 提示音
+        pygame.mixer.music.load(tips_path)
+        pygame.mixer.music.play()
+
+

@@ -42,7 +42,7 @@ class MainApp(QWidget):
 
     def initUI(self):
         self.setWindowTitle('Anki卡片制作')
-        self.setWindowIcon(QIcon('docs/icon.png'))  # 设置窗口图标
+        self.setWindowIcon(QIcon('files/icon.png'))  # 设置窗口图标
         self.setGeometry(100, 100, 400, 700)
 
         layout = QVBoxLayout()
@@ -64,7 +64,7 @@ class MainApp(QWidget):
 
         # 创建带有 GitHub 图标的按钮
         self.githubButton = QPushButton(self)
-        self.githubButton.setIcon(QIcon('./docs/icon-github.svg'))
+        self.githubButton.setIcon(QIcon('./files/icon-github.svg'))
         self.githubButton.setFixedWidth(30)
         self.githubButton.clicked.connect(self.openGithub)
         selectionLayout.addWidget(self.githubButton)
@@ -170,7 +170,7 @@ class MainApp(QWidget):
         self.senButton.setFixedWidth(50)
         sendAndPinLayout.addWidget(self.senButton)
 
-        self.pinButton = QPushButton('🔝', self)  # 假设你有一个置顶图标pin-icon.png
+        self.pinButton = QPushButton('🔝', self)  # 假设你有一个置顶图标
         self.pinButton.setCheckable(True)
         self.pinButton.setChecked(True)  # 默认置顶
         self.pinButton.setFixedWidth(25)
@@ -258,7 +258,7 @@ class MainApp(QWidget):
         self.expressionEdit.setText(text)
 
     def updateStatusMessage(self, message):
-        """更新状态栏消息的方法。"""
+        # 更新状态栏消息的方法。
         self.statusLabel.setText(message)
 
     def resizeEvent(self, event):
@@ -270,10 +270,7 @@ class MainApp(QWidget):
         webbrowser.open('https://github.com/raindrop213/anki-scene-memory')
 
     def pasteText(self, text=''):
-        """
-        将文本粘贴到句子编辑框，并根据设置播放音频。
-        如果没有提供文本，则尝试从剪切板获取。
-        """
+        # 将文本粘贴到句子编辑框，并根据设置播放音频。如果没有提供文本，则尝试从剪切板获取。
         if not text:
             clipboard = QApplication.clipboard()
             text = clipboard.text()
@@ -337,6 +334,7 @@ class MainApp(QWidget):
                                                 exp_path='cache/audio-exp.mp3',
                                                 sen_path='cache/audio-sen.mp3')
                 self.updateStatusMessage(f'Created note with ID:{note_id}')
+                self.vits_api.play_tips('files/tips.wav')
             else:
                 self.updateStatusMessage(f'One or more information are empty.')
         except Exception as e:
