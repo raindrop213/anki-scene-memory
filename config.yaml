@@ -1,8 +1,13 @@
+key:
+  copy: [f3, f9]
+  printscreen: [f8]
+
 anki:
   decks:
     - manga
     - novel
     - HT
+    - HTn
     - manga_test
   models: 
     - manga

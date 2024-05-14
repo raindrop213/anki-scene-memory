@@ -1,8 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QLabel, QVBoxLayout, QHBoxLayout, QComboBox, QTextEdit, QPlainTextEdit, QCheckBox
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QThread
 from PyQt5.QtGui import QPixmap, QIcon
+import keyboard
 from module.capture_screen import CaptureScreen
 from module.moji import moji
 from module.youdao import youdao
@@ -12,6 +13,35 @@ from module.anki_api import AnkiConnector
 from module.vits_api import VitsAPI
 import webbrowser
 import yaml
+
+class HotkeyThread(QThread):
+    copy_triggered = pyqtSignal()
+    printscreen_triggered = pyqtSignal()
+
+    def __init__(self, config_path):
+        super().__init__()
+        self.config_path = config_path
+
+    def run(self):
+        # Load the hotkey configuration from the YAML file
+        with open(self.config_path, 'r', encoding='utf-8') as file:
+            config = yaml.safe_load(file)
+        
+        # Handle multiple copy hotkeys
+        copy_hotkeys = config['key']['copy']
+        if not isinstance(copy_hotkeys, list):  # 如果不是列表，转换为列表
+            copy_hotkeys = [copy_hotkeys]
+        for hotkey in copy_hotkeys:
+            keyboard.add_hotkey(hotkey, lambda: self.copy_triggered.emit())
+
+        # Handle multiple printscreen hotkeys
+        printscreen_hotkeys = config['key']['printscreen']
+        if not isinstance(printscreen_hotkeys, list):  # 如果不是列表，转换为列表
+            printscreen_hotkeys = [printscreen_hotkeys]
+        for hotkey in printscreen_hotkeys:
+            keyboard.add_hotkey(hotkey, lambda: self.printscreen_triggered.emit())
+
+        keyboard.wait()
 
 
 class MyPlainTextEdit(QPlainTextEdit):
@@ -34,6 +64,12 @@ class MainApp(QWidget):
 
         self.clipButton.stateChanged.connect(self.toggleClipboardMonitoring)
         self.toggleClipboardMonitoring()  # 初始化剪切板监控状态
+
+        # Initialize and start the hotkey thread with the path to the config file
+        self.hotkey_thread = HotkeyThread('config.yaml')
+        self.hotkey_thread.copy_triggered.connect(self.pasteText)
+        self.hotkey_thread.printscreen_triggered.connect(self.captureScreen)
+        self.hotkey_thread.start()
 
     def load_config(self, filepath):
         """加载YAML配置文件"""
@@ -118,13 +154,13 @@ class MainApp(QWidget):
         sentenceLayout = QHBoxLayout()
         self.sentenceEdit = MyPlainTextEdit(self)
         self.sentenceEdit.setPlaceholderText('句子')
-        self.sentenceEdit.setMaximumHeight(50)
+        self.sentenceEdit.setMaximumHeight(70)
         self.sentenceEdit.textSelected.connect(self.on_text_selected)  # 连接信号到槽函数
         sentenceLayout.addWidget(self.sentenceEdit)
 
         self.pasteButton = QPushButton('⧉', self)  # 你可以使用更合适的文本或图标
         self.pasteButton.setFixedWidth(50)  # 设置按钮宽度为20
-        self.pasteButton.setMinimumHeight(50)
+        self.pasteButton.setMinimumHeight(70)
         self.pasteButton.clicked.connect(self.pasteText)
         sentenceLayout.addWidget(self.pasteButton)
 
@@ -166,7 +202,7 @@ class MainApp(QWidget):
 
         self.senButton = QPushButton("VITS", self)
         self.senButton.setCheckable(True)
-        self.senButton.setChecked(False)  # 默认选中
+        self.senButton.setChecked(True)  # 默认选中
         self.senButton.setFixedWidth(50)
         sendAndPinLayout.addWidget(self.senButton)
 
@@ -277,10 +313,12 @@ class MainApp(QWidget):
         self.sentenceEdit.setPlainText(text)
         if self.senButton.isChecked():
             self.vits_api.play_audio(text)
+        print("Paste Text Hotkey Activated")
 
     def captureScreen(self):
         self.captureWin = CaptureScreen(self.updateImageDisplay)
         self.captureWin.show()
+        print("Capture Screen Hotkey Activated")
 
     def updateImageDisplay(self, imagePath):
         pixmap = QPixmap(imagePath)

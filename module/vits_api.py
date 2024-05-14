@@ -2,6 +2,7 @@ import io
 import requests
 import urllib.parse
 import pygame
+import threading
 
 class VitsAPI:
     def __init__(self, config):
@@ -9,6 +10,11 @@ class VitsAPI:
         pygame.mixer.init() # Initialize the mixer module
 
     def play_audio(self, text):
+        # 创建并启动一个线程来播放音频
+        thread = threading.Thread(target=self._play_audio_thread, args=(text,))
+        thread.start()
+
+    def _play_audio_thread(self, text):
         params = {
             'text': text,
             'id': self.config['vits']['gui_voice'],
