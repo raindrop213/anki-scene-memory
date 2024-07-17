@@ -25,6 +25,7 @@ vits:
   length: 1.1
 
 mecab:
+  unidicpath: ./files/unidic-3.1.0/unidic
   cixingcolor:
     形容詞: "rgba(255,225,243,0.4)"
     形状詞: "rgba(242,201,226,0.4)"

@@ -1,9 +1,22 @@
 ## 准备
-通过 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 快速查词制卡（ [Anki模版](anki_template/manga_test.apkg) ）
+Anki:
+- 在 [Anki](https://apps.ankiweb.net/) 安装 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 
+- 导入我准备的 [Anki模版](anki_template/manga_test.apkg)
 
-语音 & OCR：[vits-simple-api](https://github.com/Artrajz/vits-simple-api) & [manga-ocr](https://github.com/kha-white/manga-ocr)
+语音TTS：
+- 来自项目 [vits-simple-api](https://github.com/Artrajz/vits-simple-api)
+- 为了方便，这里有我打包好的两个版本 [整合包CPU(0.8G)](https://github.com/raindrop213/LunaTranslator-re/releases/download/v0.0.1/vits-simple-api-windows-cpu-v0.6.9_vits-uma-genshin-honkai.rar) / [整合包GPU(1.96G)](https://github.com/raindrop213/LunaTranslator-re/releases/download/v0.0.1/vits-simple-api-windows-gpu-v0.6.9_vits-uma-genshin-honkai.7z)（包含[zomehwh发布的804个语音模型](https://huggingface.co/spaces/zomehwh/vits-uma-genshin-honkai)）
 
-有两种模式，其实只是更改牌组和牌模板而已，还有是否发送截图。
+Mecab：
+- 下载[unidic词典(774MB)](https://cotonoha-dic.s3-ap-northeast-1.amazonaws.com/unidic-3.1.0.zip)（词典的数据托管于 AWS 开放数据赞助计划。您可以[在此处](https://aws.amazon.com/jp/blogs/news/published-unidic-mecab-on-aws-open-data/)阅读公告）
+- 解压到files文件夹中
+
+设置：
+- 按需修改config.yaml（注意看Mecab中unidic词典的路径对不对）
+- 一般分为manga和novel两种模式，可自由更改牌组和牌模板，区别在于还有是否发送截图。
+
+(其他可选) OCR：
+- [manga-ocr](https://github.com/kha-white/manga-ocr) 截图并识别日文
 
 ## 漫画模式
 https://github.com/raindrop213/anki-scene-memory/assets/53202747/8d717951-9753-4cac-917e-036c6b082eb5

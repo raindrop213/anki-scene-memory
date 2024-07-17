@@ -1,8 +1,8 @@
 import MeCab
 
 class MeCabConverter:
-    def __init__(self):
-        self.tagger = MeCab.Tagger()
+    def __init__(self, unidic_path):
+        self.tagger = MeCab.Tagger(rf'-r nul -d {unidic_path}')
 
     def convert_to_hiragana(self, katakana):
         katakana_to_hiragana_map = {
@@ -23,19 +23,25 @@ class MeCabConverter:
         results = []
         for line in parse_result.split('\n'):
             if line and not line.startswith('EOS'):
-                parts = line.split('\t')
-                if len(parts) > 1:
-                    word = parts[0]
-                    details = parts[1].split(',')
-                    pos = details[0]  # 词性
-                    kana = details[6] if len(details) > 6 else ''  # 假名注音
-                    furigana = self.convert_to_hiragana(kana)
+                parts = line.split('\t')  # 两项，一个单词一个结果
+                word = parts[0]
+                details = parts[1].split(',')
+                pos = details[0]  # 词性
 
-                    results.append({
-                        "word": word,
-                        "pos": pos,
-                        "furigana": furigana if word != furigana else ""
-                    })
+                # print(len(details))  # 单词的分析项数
+                if len(details) > 6:
+                    if "-" in details[7]:
+                        furigana = details[7].split("-")[1]
+                    else:
+                        furigana = self.convert_to_hiragana(details[6])  # 假名注音
+                else:
+                    furigana = word
+
+                results.append({
+                    "word": word,
+                    "pos": pos,
+                    "furigana": furigana
+                })
         return results
 
     def process_text(self, text):
@@ -43,13 +49,13 @@ class MeCabConverter:
         return self.get_mecab_result(parse_result)
 
 if __name__=='__main__':
-    processor = MeCabConverter()
+    processor = MeCabConverter("./files/unidic-3.1.0/unidic")
     results = processor.process_text("pythonが大好きです")
+    # results = processor.process_text("python")
+    # results = processor.process_text("クラスメート")
+    # results = processor.process_text("大好き")
 
-    print(results)
-
+    print(f'Results: {results}')
     for result in results:
-        if result["furigana"]:
-            print(f'{result["word"]} [{result["furigana"]}] ({result["pos"]})')
-        else:
-            print(f'{result["word"]} ({result["pos"]})')
+        print(f'{result["word"]} 《{result["furigana"]}》 ({result["pos"]})')
+

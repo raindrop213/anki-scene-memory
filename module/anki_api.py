@@ -50,6 +50,9 @@ class AnkiConnector:
 
     def create_note(self, deckName, modelName, expression, sentence, meaning, image_path, exp_path, sen_path):
 
+        if not os.path.exists('cache'):
+            os.makedirs('cache')  # 检查并创建cache文件夹
+
         # 生成音频/图片
         if not self.get_audio_file(expression, exp_path, voice=self.voice_exp):
             raise Exception("Failed to generate: audio-expression")
@@ -81,9 +84,10 @@ class AnkiConnector:
             "tags": ["RD213_manga"]
         })
 
-        self.invoke('storeMediaFile', filename=image_file_name, path=os.path.abspath(image_path))
         self.invoke('storeMediaFile', filename=audio_exp_file_name, path=os.path.abspath(exp_path))
         self.invoke('storeMediaFile', filename=audio_sen_file_name, path=os.path.abspath(sen_path))
+        if os.path.exists(image_path):
+            self.invoke('storeMediaFile', filename=image_file_name, path=os.path.abspath(image_path))
         
         print('Created note with ID:', note_id)
         return note_id

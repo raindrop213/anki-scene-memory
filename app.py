@@ -267,7 +267,7 @@ class MainApp(QWidget):
     def on_sentence_changed(self):
         sentence = self.sentenceEdit.toPlainText()
         if sentence:
-            processor = MeCabConverter()
+            processor = MeCabConverter(self.config['mecab']['unidicpath'])
             results = processor.process_text(sentence)
             annotated_sentence = ""
             for word_info in results:
