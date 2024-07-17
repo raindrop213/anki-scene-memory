@@ -1,4 +1,10 @@
-## 准备
+## 如何开始
+部署：
+```bash
+git clone https://github.com/raindrop213/anki-scene-memory.git
+pip install -r requirements.txt
+```
+
 Anki:
 - 在 [Anki](https://apps.ankiweb.net/) 安装 [AnkiConnect](https://ankiweb.net/shared/info/2055492159) 
 - 导入我准备的 [Anki模版](anki_template/manga_test.apkg)
